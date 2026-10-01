@@ -1,0 +1,2456 @@
+<!DOCTYPE html>
+<html lang="so" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>FIITIK MEDIA</title>
+
+  <!-- Fullscreen Web App Meta Tags -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#05080c" />
+
+  <!-- Google Fonts: Inter, Amiri (Arabic), and Material Symbols -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700;800;900&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+
+  <!-- Firebase SDK Compat -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+  <style>
+    /* =========================================
+       1. LUXURY METALLIC DARK PALETTE
+       ========================================= */
+    :root {
+      --gold: #d4af37;
+      --gold-light: #f5d77f;
+      --gold-gradient: linear-gradient(135deg, #f5d77f 0%, #d4af37 50%, #aa7c11 100%);
+      --silver-gradient: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+      --primary: #10b981;
+      --bg: #05080c;
+      --card-bg: #0d121a;
+      --card-elevated: #141c28;
+      --nav-bg: rgba(10, 14, 20, 0.96);
+      --header-bg: rgba(5, 8, 12, 0.94);
+      --text: #f8fafc;
+      --text-muted: #8492a6;
+      --border: #1e293b;
+      --danger: #ef4444;
+      --radius-sm: 12px;
+      --radius-md: 18px;
+      --radius-lg: 26px;
+      --transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      font-family: 'Inter', system-ui, sans-serif;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100dvh;
+      overflow: hidden;
+      background-color: #000000;
+      color: var(--text);
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 480px;
+      height: 100dvh;
+      background-color: var(--bg);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 0 60px rgba(0, 0, 0, 0.9);
+    }
+
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+      user-select: none;
+      vertical-align: middle;
+    }
+    .material-symbols-outlined.fill { font-variation-settings: 'FILL' 1, 'wght' 500; }
+    .arabic-font { font-family: 'Amiri', serif; }
+
+    .fm-logo-svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* =========================================
+       2. REALTIME BANNED OVERLAY SCREEN
+       ========================================= */
+    #bannedOverlayScreen {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(5, 8, 12, 0.98);
+      backdrop-filter: blur(20px);
+      z-index: 999999;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 26px;
+      text-align: center;
+    }
+    #bannedOverlayScreen.active { display: flex; }
+    .banned-icon-circle {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      background: rgba(239, 68, 68, 0.15);
+      border: 2px solid var(--danger);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      animation: pulseDanger 1.8s infinite;
+    }
+    @keyframes pulseDanger {
+      0% { transform: scale(0.96); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+      100% { transform: scale(1.04); box-shadow: 0 0 30px 10px rgba(239, 68, 68, 0.25); }
+    }
+
+    /* =========================================
+       3. PREMIUM SURAH PAYWALL MODAL
+       ========================================= */
+    #premiumPaywallModal {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.88);
+      backdrop-filter: blur(12px);
+      z-index: 999980;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    #premiumPaywallModal.active { display: flex; }
+    .paywall-card-box {
+      width: 100%;
+      max-width: 400px;
+      background: var(--card-bg);
+      border: 2px solid var(--gold);
+      border-radius: var(--radius-lg);
+      padding: 26px 20px;
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(212, 175, 55, 0.35);
+      animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    @keyframes popIn {
+      from { transform: scale(0.8); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    /* =========================================
+       4. VIP CELEBRATION MODAL
+       ========================================= */
+    #vipSuccessModal {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.88);
+      backdrop-filter: blur(12px);
+      z-index: 999990;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    #vipSuccessModal.active { display: flex; }
+    .vip-card-box {
+      width: 100%;
+      max-width: 380px;
+      background: var(--card-bg);
+      border: 2px solid var(--gold);
+      border-radius: var(--radius-lg);
+      padding: 28px 20px;
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(212, 175, 55, 0.35);
+    }
+
+    /* =========================================
+       5. STARTUP SPLASH & LOADERS
+       ========================================= */
+    #startupSplash {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: #000000;
+      z-index: 99998;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 30px;
+      transition: opacity 0.45s ease, visibility 0.45s ease;
+    }
+    #startupSplash.fade-out {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    .splash-logo-container {
+      width: 160px;
+      height: 160px;
+      margin-bottom: 24px;
+      animation: pulseLogo 1.8s infinite alternate ease-in-out;
+    }
+    @keyframes pulseLogo {
+      0% { transform: scale(0.96); filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.2)); }
+      100% { transform: scale(1.04); filter: drop-shadow(0 0 35px rgba(212, 175, 55, 0.6)); }
+    }
+    .splash-bar-track {
+      width: 220px;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      overflow: hidden;
+      margin-top: 24px;
+    }
+    .splash-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--gold-gradient);
+      border-radius: 20px;
+      transition: width 0.1s ease;
+    }
+
+    .fiitik-loader-overlay {
+      position: absolute;
+      top: 60px; left: 0; right: 0; bottom: 0;
+      background: rgba(5, 8, 12, 0.94);
+      backdrop-filter: blur(8px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 500;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+    .fiitik-loader-overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+    .watermark-logo-spin {
+      width: 76px;
+      height: 76px;
+      animation: logoFloat 1.8s infinite ease-in-out alternate;
+    }
+    @keyframes logoFloat {
+      0% { transform: translateY(0); filter: drop-shadow(0 0 5px rgba(212, 175, 55, 0.3)); }
+      100% { transform: translateY(-8px); filter: drop-shadow(0 0 25px var(--gold)); }
+    }
+
+    .top-route-bar {
+      position: fixed;
+      top: 0; left: 0;
+      height: 3.5px;
+      width: 0%;
+      background: var(--gold-gradient);
+      z-index: 100000;
+      transition: width 0.25s ease, opacity 0.25s ease;
+    }
+
+    /* =========================================
+       6. ONBOARDING & 15-STEP WIZARD
+       ========================================= */
+    #onboardingModal {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: #05080c;
+      z-index: 80000;
+      display: flex;
+      flex-direction: column;
+      padding: 24px;
+      transition: opacity 0.4s ease, visibility 0.4s ease;
+    }
+    #onboardingModal.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    .onboard-brand-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(212, 175, 55, 0.1);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: var(--gold);
+    }
+    .onboard-content-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      text-align: center;
+      padding: 10px 0;
+    }
+    .onboard-hero-graphic {
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 24px;
+      border-radius: 28px;
+      background: linear-gradient(135deg, #101924, #192535);
+      border: 1px solid rgba(212, 175, 55, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+      padding: 18px;
+    }
+    .onboard-title {
+      font-size: 1.55rem;
+      font-weight: 900;
+      color: #fff;
+      margin-bottom: 10px;
+      line-height: 1.3;
+    }
+    .onboard-desc {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+      max-width: 320px;
+      margin: 0 auto;
+    }
+    .onboard-footer {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .onboard-dots {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+    }
+    .onboard-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--border);
+      transition: var(--transition);
+    }
+    .onboard-dot.active {
+      width: 24px;
+      background: var(--gold);
+      border-radius: 12px;
+    }
+    .btn-gold-action {
+      background: var(--gold-gradient);
+      color: #05080c;
+      border: none;
+      padding: 15px;
+      border-radius: var(--radius-md);
+      font-size: 0.95rem;
+      font-weight: 900;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 8px 24px rgba(212, 175, 55, 0.35);
+      transition: var(--transition);
+    }
+    .btn-gold-action:active { transform: scale(0.97); }
+
+    /* 15-Step Wizard Modal */
+    #questionnaireModal {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: #05080c;
+      z-index: 85000;
+      display: none;
+      flex-direction: column;
+      padding: 24px 20px;
+      overflow-y: auto;
+    }
+    #questionnaireModal.open { display: flex; }
+    .step-progress-track {
+      height: 6px;
+      background: var(--card-elevated);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+    .step-progress-fill {
+      height: 100%;
+      width: 6.6%;
+      background: var(--gold-gradient);
+      transition: width 0.3s ease;
+    }
+    .wizard-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 22px 18px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .wizard-options-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      flex: 1;
+      overflow-y: auto;
+      max-height: 380px;
+      padding-right: 4px;
+    }
+    .wizard-opt-btn {
+      background: var(--card-elevated);
+      border: 1px solid var(--border);
+      color: #fff;
+      padding: 12px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 0.88rem;
+      font-weight: 600;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: var(--transition);
+    }
+    .wizard-opt-btn:hover {
+      border-color: var(--gold);
+      background: rgba(212, 175, 55, 0.12);
+    }
+
+    /* =========================================
+       7. AUTH MODAL (LOGIN & SIGNUP)
+       ========================================= */
+    .modal-backdrop {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.88);
+      backdrop-filter: blur(10px);
+      z-index: 75000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-backdrop.active { display: flex; }
+    .auth-dialog-card {
+      width: 100%;
+      max-width: 420px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px 20px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.85);
+    }
+    .auth-tabs {
+      display: flex;
+      gap: 8px;
+      background: var(--card-elevated);
+      padding: 4px;
+      border-radius: var(--radius-sm);
+      margin-bottom: 18px;
+    }
+    .auth-tab-btn {
+      flex: 1;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .auth-tab-btn.active {
+      background: var(--gold-gradient);
+      color: #05080c;
+    }
+    .input-field-wrap {
+      margin-bottom: 14px;
+      position: relative;
+    }
+    .input-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      display: block;
+    }
+    .auth-text-input {
+      width: 100%;
+      background: var(--card-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      color: #fff;
+      font-size: 0.92rem;
+      outline: none;
+      transition: var(--transition);
+    }
+    .auth-text-input:focus { border-color: var(--gold); }
+    .password-toggle-eye {
+      position: absolute;
+      right: 12px;
+      top: 34px;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+    .error-feedback-box {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid var(--danger);
+      color: #fca5a5;
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-bottom: 14px;
+      display: none;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* =========================================
+       8. APP HEADER & LIVE PENDING BAR
+       ========================================= */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: var(--header-bg);
+      backdrop-filter: blur(16px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 18px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .header-logo-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+    .header-logo-wrap {
+      width: 40px;
+      height: 40px;
+    }
+    .header-brand-text h1 {
+      font-size: 1.05rem;
+      font-weight: 900;
+      letter-spacing: -0.3px;
+      background: var(--silver-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .header-brand-text span {
+      font-size: 0.6rem;
+      font-weight: 800;
+      color: var(--gold);
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      display: block;
+      margin-top: -3px;
+    }
+    .header-icon-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    /* 1-Hour Pending Alert Banner */
+    .pending-status-banner {
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.15), rgba(170, 124, 17, 0.25));
+      border: 1px solid var(--gold);
+      padding: 10px 14px;
+      margin: 10px 14px 0;
+      border-radius: var(--radius-md);
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .pending-status-banner.active { display: flex; }
+    .pending-clock-text {
+      font-family: monospace;
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--gold);
+      background: #000;
+      padding: 4px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--gold);
+    }
+
+    /* =========================================
+       9. PAGES & CONTENT VIEWS
+       ========================================= */
+    .content-area {
+      flex: 1;
+      padding: 14px;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .page-view {
+      display: none;
+      animation: pageFade 0.25s ease forwards;
+    }
+    .page-view.active { display: block; }
+    @keyframes pageFade {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+    .section-head h2 {
+      font-size: 1.15rem;
+      font-weight: 900;
+      color: #fff;
+    }
+    .badge-pill {
+      background: var(--card-elevated);
+      border: 1px solid var(--border);
+      color: var(--gold);
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 800;
+    }
+
+    .quran-search-bar {
+      position: relative;
+      margin-bottom: 16px;
+    }
+    .quran-search-bar input {
+      width: 100%;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px 16px 14px 44px;
+      color: #fff;
+      font-size: 0.92rem;
+      outline: none;
+    }
+    .quran-search-bar input:focus { border-color: var(--gold); }
+    .quran-search-bar .search-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+    }
+
+    /* Surah Directory Cards with Locked Indicators */
+    .surah-list-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .surah-row-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: var(--transition);
+      position: relative;
+    }
+    .surah-row-card:hover {
+      border-color: var(--gold);
+      background: var(--card-elevated);
+      transform: translateY(-2px);
+    }
+    .surah-row-card.premium-locked-card {
+      border-color: rgba(212, 175, 55, 0.4);
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.05) 0%, var(--card-bg) 100%);
+    }
+
+    .surah-num-box {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      background: var(--card-elevated);
+      border: 1px solid var(--border);
+      color: var(--gold);
+      font-weight: 900;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .surah-num-box.locked {
+      background: rgba(239, 68, 68, 0.15);
+      border-color: var(--danger);
+      color: var(--danger);
+    }
+
+    .surah-ar-name {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--gold);
+    }
+
+    .lock-badge-icon {
+      font-size: 16px;
+      color: var(--gold);
+      margin-left: 4px;
+      vertical-align: middle;
+    }
+
+    /* =========================================
+       10. SMART VIDEO PLAYER & TIME-AGO BADGES
+       ========================================= */
+    .video-card-item {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 14px;
+      margin-bottom: 16px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+    }
+    .video-frame-wrap {
+      width: 100%;
+      aspect-ratio: 16/9;
+      background: #000;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      margin-bottom: 10px;
+      position: relative;
+    }
+    .video-frame-wrap iframe, .video-frame-wrap video {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+    }
+
+    .video-info-box {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .video-badge-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 2px;
+    }
+    .video-new-badge {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      color: #fff;
+      font-size: 0.65rem;
+      font-weight: 900;
+      padding: 2px 7px;
+      border-radius: 6px;
+      letter-spacing: 0.5px;
+      animation: pulseNew 1.5s infinite alternate;
+    }
+    @keyframes pulseNew {
+      0% { transform: scale(0.95); opacity: 0.85; }
+      100% { transform: scale(1.05); opacity: 1; box-shadow: 0 0 10px rgba(239, 68, 68, 0.6); }
+    }
+    .video-time-ago {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--gold);
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .video-title {
+      font-size: 1.02rem;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.35;
+    }
+    .video-sub-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 6px;
+      padding-top: 6px;
+      border-top: 1px dashed var(--border);
+    }
+    .video-author {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+    .btn-watch-external {
+      background: var(--gold-gradient);
+      color: #05080c;
+      text-decoration: none;
+      font-size: 0.75rem;
+      font-weight: 900;
+      padding: 4px 10px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .video-empty-notice {
+      background: var(--card-bg);
+      border: 1px dashed var(--border);
+      border-radius: var(--radius-lg);
+      padding: 40px 20px;
+      text-align: center;
+      margin: 10px 0;
+    }
+    .video-empty-notice .material-symbols-outlined {
+      font-size: 50px;
+      color: var(--gold);
+      margin-bottom: 10px;
+    }
+
+    /* Dynamic VIP Cart Active State */
+    .vip-active-banner-card {
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.18) 0%, rgba(170, 124, 17, 0.28) 100%);
+      border: 2px solid var(--gold);
+      border-radius: var(--radius-lg);
+      padding: 24px 20px;
+      text-align: center;
+      margin-bottom: 20px;
+      box-shadow: 0 10px 30px rgba(212, 175, 55, 0.25);
+    }
+
+    /* Packages & Plans */
+    .plan-card-item {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      margin-bottom: 14px;
+      position: relative;
+    }
+    .plan-card-item.featured {
+      border-color: var(--gold);
+      background: linear-gradient(180deg, rgba(212, 175, 55, 0.08) 0%, var(--card-bg) 100%);
+    }
+    .plan-tag {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      background: var(--gold);
+      color: #05080c;
+      font-size: 0.68rem;
+      font-weight: 900;
+      padding: 3px 8px;
+      border-radius: 12px;
+      text-transform: uppercase;
+    }
+    .price-row {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      margin: 8px 0 14px;
+    }
+    .current-price {
+      font-size: 1.85rem;
+      font-weight: 900;
+      color: #fff;
+    }
+    .old-price-strikethrough {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      text-decoration: line-through;
+      font-weight: 700;
+    }
+    .discount-pill {
+      color: var(--primary);
+      font-size: 0.8rem;
+      font-weight: 800;
+    }
+
+    /* Profile Subviews */
+    .profile-section-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+    .profile-nav-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+    }
+    .profile-nav-row:last-child { border-bottom: none; }
+
+    .subview-modal {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: var(--bg);
+      z-index: 65000;
+      display: none;
+      flex-direction: column;
+    }
+    .subview-modal.open { display: flex; }
+    .subview-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+    }
+    .english-report-article {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 18px;
+      margin-bottom: 14px;
+    }
+    .english-report-article h4 {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--gold);
+      margin-bottom: 6px;
+    }
+    .english-report-article p {
+      font-size: 0.82rem;
+      line-height: 1.6;
+      color: #cbd5e1;
+    }
+
+    /* =========================================
+       11. BOTTOM NAVIGATION BAR
+       ========================================= */
+    .bottom-nav {
+      position: sticky;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--nav-bg);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 8px 6px;
+      z-index: 100;
+      flex-shrink: 0;
+    }
+    .nav-tab-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 8px 12px;
+      border-radius: 20px;
+      transition: var(--transition);
+      gap: 6px;
+    }
+    .nav-tab-btn .material-symbols-outlined { font-size: 22px; }
+    .nav-tab-btn .nav-label {
+      font-size: 0.78rem;
+      font-weight: 800;
+      display: none;
+      animation: labelPop 0.25s forwards;
+    }
+    @keyframes labelPop {
+      from { opacity: 0; transform: scale(0.7); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .nav-tab-btn.active {
+      background: rgba(212, 175, 55, 0.15);
+      color: var(--gold);
+      padding: 8px 16px;
+    }
+    .nav-tab-btn.active .material-symbols-outlined {
+      font-variation-settings: 'FILL' 1, 'wght' 600;
+      transform: scale(1.1);
+    }
+    .nav-tab-btn.active .nav-label { display: inline-block; }
+
+    /* Surah Reader Fullscreen */
+    #surahReaderView {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: var(--bg);
+      z-index: 60000;
+      display: none;
+      flex-direction: column;
+    }
+    #surahReaderView.open { display: flex; }
+    .reader-toolbar {
+      background: var(--card-bg);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .reader-body-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 18px;
+    }
+    .ayah-item-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+    .ayah-arabic-text {
+      font-size: 1.55rem;
+      line-height: 2.1;
+      text-align: right;
+      color: #fff;
+      margin-bottom: 12px;
+    }
+    .ayah-somali-text {
+      font-size: 0.88rem;
+      color: #cbd5e1;
+      line-height: 1.6;
+      border-top: 1px dashed var(--border);
+      padding-top: 10px;
+    }
+
+    /* Toast */
+    .toast-box {
+      position: fixed;
+      bottom: 74px;
+      left: 50%;
+      transform: translateX(-50%) translateY(40px);
+      background: #141c28;
+      border: 1px solid var(--gold);
+      color: #fff;
+      padding: 10px 18px;
+      border-radius: 30px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.8);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.25s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      z-index: 999999;
+    }
+    .toast-box.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+
+  <!-- ================= 1. BANNED OVERLAY ================= -->
+  <div id="bannedOverlayScreen">
+    <div class="banned-icon-circle">
+      <span class="material-symbols-outlined" style="font-size: 48px; color: var(--danger);">block</span>
+    </div>
+    <h2 style="font-size: 1.45rem; font-weight: 900; color: #fff; margin-bottom: 8px;">Akoonkaaga Waa La Xannibay!</h2>
+    <p style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.6; max-width: 320px; margin-bottom: 24px;">
+      Maamulaha (Administrator) ayaa xannibay akoonkaaga. Ma isticmaali kartid adeegyada app-ka ilaa xannibaadda lagaaga qaado.
+    </p>
+    <a href="tel:252612688949" class="btn-gold-action" style="text-decoration:none; background: var(--danger); color:#fff; width: 240px;">
+      <span class="material-symbols-outlined">call</span>
+      <span>Wac: +252 612688949</span>
+    </a>
+  </div>
+
+  <!-- ================= 2. PREMIUM SURAH & AUDIO PAYWALL MODAL ================= -->
+  <div id="premiumPaywallModal">
+    <div class="paywall-card-box">
+      <span class="material-symbols-outlined" style="font-size: 58px; color: var(--gold); margin-bottom: 10px;">lock</span>
+      <h2 style="font-size: 1.3rem; font-weight: 900; color: #fff; margin-bottom: 6px;">Suuraddani Waa Premium VIP 🔒</h2>
+      <p style="font-size: 0.82rem; color: #cbd5e1; line-height: 1.5; margin-bottom: 20px;">
+        Suuradaha (Al-Baqarah, Al-Faatixa, Qulwalo/Ikhlaas) iyo Codadka Audio-ga oo dhan waxay u xiran yihiin xubnaha VIP-da. Fadlan xirmo dooro si aad toos ugu furato!
+      </p>
+      
+      <div style="display: flex; gap: 8px;">
+        <button class="btn-gold-action" style="background: var(--card-elevated); color: #fff; border: 1px solid var(--border); flex: 1;" onclick="closePaywallModal()">
+          <span>Dib u Noqo</span>
+        </button>
+        <button class="btn-gold-action" style="flex: 2;" onclick="redirectToCartForPlan()">
+          <span>Dooro Xirmo (VIP) 💳</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 3. VIP CELEBRATION MODAL ================= -->
+  <div id="vipSuccessModal">
+    <div class="vip-card-box">
+      <span class="material-symbols-outlined" style="font-size: 64px; color: var(--gold); margin-bottom: 12px;">workspace_premium</span>
+      <h2 style="font-size: 1.35rem; font-weight: 900; color: #fff; margin-bottom: 6px;">Hambalyo! VIP Active 🎉</h2>
+      <p style="font-size: 0.85rem; color: #cbd5e1; line-height: 1.5; margin-bottom: 20px;">
+        Admin-ka ayaa aqbalay lacagtaadii! Waxaad hadda heshay <strong>Unlimited VIP Access</strong> oo ku saabsan dhammaan Suuradaha, Codadka & Duruusta.
+      </p>
+      <button class="btn-gold-action" style="width: 100%;" onclick="closeVipModal()">
+        <span>Ku Raaxayso (Start Learning)</span>
+        <span class="material-symbols-outlined">check_circle</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ================= 4. STARTUP SPLASH ================= -->
+  <div id="startupSplash">
+    <div class="splash-logo-container">
+      <svg class="fm-logo-svg" viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="500" height="500" rx="40" fill="#000000"/>
+        <path d="M125 125 H275 L250 175 H175 V235 H240 L215 285 H175 V375 H125 Z" fill="url(#silverGrad)" />
+        <path d="M275 125 L325 200 L250 200 Z" fill="url(#silverGrad)" />
+        <path d="M245 200 L305 320 L375 125 H425 V375 H375 V235 L320 375 H290 L245 285 Z" fill="url(#goldGrad)" />
+        <text x="250" y="420" font-family="'Inter', sans-serif" font-weight="900" font-size="34" fill="url(#silverGrad)" text-anchor="middle" letter-spacing="8">FIITIK MEDIA</text>
+        <text x="250" y="450" font-family="'Inter', sans-serif" font-weight="700" font-size="13" fill="url(#goldGrad)" text-anchor="middle" letter-spacing="5">— CREATE • ELEVATE —</text>
+        <defs>
+          <linearGradient id="goldGrad" x1="0" y1="0" x2="500" y2="500" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#fae596"/>
+            <stop offset="50%" stop-color="#d4af37"/>
+            <stop offset="100%" stop-color="#8a6508"/>
+          </linearGradient>
+          <linearGradient id="silverGrad" x1="0" y1="0" x2="500" y2="500" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#ffffff"/>
+            <stop offset="100%" stop-color="#94a3b8"/>
+          </linearGradient>
+        </defs>
+      </svg>
+    </div>
+
+    <div class="splash-bar-track">
+      <div class="splash-bar-fill" id="splashFill"></div>
+    </div>
+    <div class="splash-status" id="splashStatus">Connecting Live Sync to Firebase...</div>
+  </div>
+
+  <!-- Universal Loading Watermark -->
+  <div class="fiitik-loader-overlay" id="fiitikGlobalLoader">
+    <div class="watermark-logo-spin">
+      <svg class="fm-logo-svg" viewBox="0 0 500 500">
+        <path d="M125 125 H275 L250 175 H175 V235 H240 L215 285 H175 V375 H125 Z" fill="#ffffff" />
+        <path d="M245 200 L305 320 L375 125 H425 V375 H375 V235 L320 375 H290 L245 285 Z" fill="#d4af37" />
+      </svg>
+    </div>
+    <p style="margin-top: 14px; font-size: 0.85rem; font-weight: 800; color: var(--gold);" id="loaderStatusMsg">Loading Data...</p>
+  </div>
+
+  <!-- ================= 5. ONBOARDING WELCOME ================= -->
+  <div id="onboardingModal" class="hidden">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <div class="onboard-brand-pill">
+        <span class="material-symbols-outlined" style="font-size: 16px;">verified</span>
+        <span>FIITIK MEDIA OFFICIAL</span>
+      </div>
+      <button onclick="skipOnboarding()" style="background:none; border:none; color:var(--text-muted); font-size:0.85rem; font-weight:700; cursor:pointer;">Skip</button>
+    </div>
+
+    <div class="onboard-content-area">
+      <div class="onboard-hero-graphic">
+        <svg class="fm-logo-svg" viewBox="0 0 500 500">
+          <path d="M125 125 H275 L250 175 H175 V235 H240 L215 285 H175 V375 H125 Z" fill="#ffffff" />
+          <path d="M245 200 L305 320 L375 125 H425 V375 H375 V235 L320 375 H290 L245 285 Z" fill="#d4af37" />
+        </svg>
+      </div>
+      <h2 class="onboard-title" id="onboardTitle">114 Surahs Quran & HD Duruus</h2>
+      <p class="onboard-desc" id="onboardDesc">Qur'aanka Kariimka ah oo wata Aayado Carabi ah, Tarjumaad Af-Soomaali ah, iyo Duruus Diini ah.</p>
+    </div>
+
+    <div class="onboard-footer">
+      <div class="onboard-dots">
+        <div class="onboard-dot active" id="dot0"></div>
+        <div class="onboard-dot" id="dot1"></div>
+        <div class="onboard-dot" id="dot2"></div>
+      </div>
+      <button class="btn-gold-action" id="btnNextOnboard" onclick="nextOnboardStep()">
+        <span>Continue</span>
+        <span class="material-symbols-outlined">arrow_forward</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ================= 6. 15-STEP QUESTIONNAIRE ================= -->
+  <div id="questionnaireModal">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+      <span style="font-size: 0.8rem; font-weight: 800; color: var(--gold);" id="wizardStepLabel">Step 1 of 15</span>
+      <span style="font-size: 0.75rem; color: var(--text-muted);">Location & Assessment</span>
+    </div>
+    <div class="step-progress-track">
+      <div class="step-progress-fill" id="wizardProgressFill"></div>
+    </div>
+
+    <div class="wizard-card">
+      <h3 style="font-size: 1.2rem; font-weight: 800; color: #fff; margin-bottom: 6px;" id="wizardQTitle">Xaggee baad ku nooshahay?</h3>
+      <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 18px;" id="wizardQDesc">Dooro gobolka ama dalka aad hadda deggen tahay.</p>
+      
+      <div class="wizard-options-grid" id="wizardOptionsList"></div>
+    </div>
+  </div>
+
+  <!-- ================= 7. AUTH MODAL (LOGIN & SIGNUP) ================= -->
+  <div class="modal-backdrop" id="authModal">
+    <div class="auth-dialog-card">
+      <div class="auth-tabs">
+        <button class="auth-tab-btn active" id="tabBtnLogin" onclick="switchAuthMode('login')">Sign In</button>
+        <button class="auth-tab-btn" id="tabBtnSignup" onclick="switchAuthMode('signup')">Create Account</button>
+      </div>
+
+      <div class="error-feedback-box" id="authErrorBox">
+        <span class="material-symbols-outlined" style="font-size: 18px;">error</span>
+        <span id="authErrorMsg">Password or phone is incorrect.</span>
+      </div>
+
+      <div class="input-field-wrap" id="wrapFullName" style="display: none;">
+        <label class="input-label">Full Name (Magacaaga)</label>
+        <input type="text" id="authFullName" class="auth-text-input" placeholder="e.g. Maxamed Axmed" />
+      </div>
+
+      <div class="input-field-wrap">
+        <label class="input-label">Hormuud Mobile Number</label>
+        <input type="tel" id="authPhoneInput" class="auth-text-input" placeholder="61XXXXXXX" />
+      </div>
+
+      <div class="input-field-wrap">
+        <label class="input-label">Password (Furaha)</label>
+        <input type="password" id="authPasswordInput" class="auth-text-input" placeholder="••••••••" />
+        <button type="button" class="password-toggle-eye" onclick="togglePasswordVisibility('authPasswordInput', this)">
+          <span class="material-symbols-outlined">visibility</span>
+        </button>
+      </div>
+
+      <button class="btn-gold-action" style="width: 100%; margin-top: 10px;" onclick="processAuthSubmission()">
+        <span id="authSubmitText">Sign In to FIITIK</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ================= 8. MAIN FULLSCREEN APP CONTAINER ================= -->
+  <div class="app-container">
+    <div class="top-route-bar" id="topRouteBar"></div>
+
+    <!-- HEADER -->
+    <header class="header">
+      <div class="header-logo-group" onclick="switchTab('quran')">
+        <div class="header-logo-wrap">
+          <svg class="fm-logo-svg" viewBox="0 0 500 500">
+            <path d="M125 125 H275 L250 175 H175 V235 H240 L215 285 H175 V375 H125 Z" fill="#ffffff" />
+            <path d="M245 200 L305 320 L375 125 H425 V375 H375 V235 L320 375 H290 L245 285 Z" fill="#d4af37" />
+          </svg>
+        </div>
+        <div class="header-brand-text">
+          <h1>FIITIK MEDIA</h1>
+          <span id="userStatusHeaderBadge">Quran, Duruus & Media</span>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 8px;">
+        <a href="tel:252612688949" class="header-icon-btn" title="Help 252 612688949">
+          <span class="material-symbols-outlined" style="color: var(--primary);">support_agent</span>
+        </a>
+        <button class="header-icon-btn" onclick="switchTab('cart')">
+          <span class="material-symbols-outlined" style="color: var(--gold);">shopping_cart</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- 1-HOUR PERSISTENT PENDING BANNER -->
+    <div class="pending-status-banner" id="pendingBanner">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <span class="material-symbols-outlined" style="color: var(--gold); font-size: 24px;">hourglass_top</span>
+        <div>
+          <div style="font-weight: 800; font-size: 0.8rem; color: #fff;">Payment Pending Admin Approval</div>
+          <div style="font-size: 0.68rem; color: #94a3b8;">Xaqiijinta EVC Plus</div>
+        </div>
+      </div>
+      <div class="pending-clock-text" id="pendingClockDisplay">59:59</div>
+    </div>
+
+    <!-- MAIN BODY PAGES (SCROLLABLE) -->
+    <main class="content-area">
+
+      <!-- ================= PAGE 1: QURAN 114 SURAHS ================= -->
+      <section id="view-quran" class="page-view active">
+        <div class="quran-search-bar">
+          <span class="material-symbols-outlined search-icon">search</span>
+          <input type="text" id="surahSearchInput" placeholder="Search 114 Surahs (e.g. Al-Baqarah, Yaseen, Al-Kahf)..." />
+        </div>
+
+        <div class="section-head">
+          <h2>All 114 Surahs <span class="arabic-font" style="color: var(--gold);">(١١٤ سورة)</span></h2>
+          <span class="badge-pill" id="surahCounterBadge">114 Surahs</span>
+        </div>
+
+        <div class="surah-list-wrap" id="surahListContainer"></div>
+      </section>
+
+      <!-- ================= PAGE 2: REAL-TIME VIDEO HUB ================= -->
+      <section id="view-videos" class="page-view">
+        <div class="section-head">
+          <h2>Duruus & Islamic Videos 🎥</h2>
+          <span class="badge-pill" id="liveVideosBadge">Live HD</span>
+        </div>
+
+        <div id="userVideoListContainer"></div>
+      </section>
+
+      <!-- ================= PAGE 3: PLANS & CART ================= -->
+      <section id="view-cart" class="page-view">
+        
+        <!-- ACTIVE VIP BANNER (SHOWS WHEN ADMIN ACCEPTS - CART HIDES) -->
+        <div id="cartVipActiveView" class="vip-active-banner-card" style="display: none;">
+          <span class="material-symbols-outlined" style="font-size: 54px; color: var(--gold); margin-bottom: 8px;">workspace_premium</span>
+          <h2 style="font-size: 1.3rem; font-weight: 900; color: #fff; margin-bottom: 4px;">VIP Membership Active ⭐</h2>
+          <p style="font-size: 0.82rem; color: #cbd5e1; line-height: 1.5; margin-bottom: 16px;">
+            Wadarta xirmooyinka VIP-da waa kuu furan yihiin! Xirmooyinkii lacag bixinta hadda waa baaba'een maadaama aad tahay xubin firfircoon.
+          </p>
+          <div style="background: rgba(16, 185, 129, 0.15); border: 1px solid var(--primary); color: var(--primary); padding: 6px 14px; border-radius: 20px; font-size: 0.78rem; font-weight: 800; display: inline-block;">
+            Unlimited Audio & 114 Surahs Unlocked
+          </div>
+        </div>
+
+        <!-- BUYABLE CART PLANS (RESTORES WHEN EXPIRED / FREE USER) -->
+        <div id="cartBuyablePlansSection">
+          <div class="section-head">
+            <h2>Xirmooyinka VIP (Subscriptions) 💳</h2>
+            <span class="badge-pill">EVC Plus</span>
+          </div>
+
+          <!-- Plan 1: $0.02 -->
+          <div class="plan-card-item">
+            <span class="plan-tag">Starter 5-Day</span>
+            <h3 style="color:#fff; font-size:1.1rem; font-weight:800;">5 Days Unlimited Quran</h3>
+            <div class="price-row">
+              <span class="current-price">$0.02</span>
+              <span class="old-price-strikethrough">$0.10</span>
+              <span class="discount-pill">(80% OFF)</span>
+            </div>
+            <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:14px;">Furitaanka Suuradaha xiran (Al-Baqarah, Faatixa, Qulwalo) iyo codadka xawaaraha sare leh.</p>
+            <button class="btn-gold-action" style="width: 100%;" onclick="initiateHormuudCheckout('5 Days Quran', 0.02)">
+              <span class="material-symbols-outlined">bolt</span>
+              Subscribe with EVC ($0.02)
+            </button>
+          </div>
+
+          <!-- Plan 2: $0.50 -->
+          <div class="plan-card-item featured">
+            <span class="plan-tag">Most Popular 🔥</span>
+            <h3 style="color:#fff; font-size:1.15rem; font-weight:800;">1 Month Duruus & Quran</h3>
+            <div class="price-row">
+              <span class="current-price" style="color:var(--gold);">$0.50</span>
+              <span class="old-price-strikethrough">$1.50</span>
+              <span class="discount-pill">(67% OFF)</span>
+            </div>
+            <p style="font-size:0.8rem; color:#cbd5e1; margin-bottom:14px;">Dhammaan fiidyowyada duruusta diiniga ah, casharrada HD-ga ah, iyo Qur'aanka buuxa 1 Bil.</p>
+            <button class="btn-gold-action" style="width: 100%;" onclick="initiateHormuudCheckout('1 Month Full Access', 0.50)">
+              <span class="material-symbols-outlined">star</span>
+              Get 1 Month Special ($0.50)
+            </button>
+          </div>
+
+          <!-- Plan 3: $1.20 -->
+          <div class="plan-card-item">
+            <span class="plan-tag">3 Months VIP</span>
+            <h3 style="color:#fff; font-size:1.1rem; font-weight:800;">Quarterly VIP Membership</h3>
+            <div class="price-row">
+              <span class="current-price">$1.20</span>
+              <span class="old-price-strikethrough">$3.50</span>
+              <span class="discount-pill">(65% OFF)</span>
+            </div>
+            <button class="btn-gold-action" style="width: 100%;" onclick="initiateHormuudCheckout('3 Months VIP', 1.20)">
+              <span class="material-symbols-outlined">workspace_premium</span>
+              Subscribe 3 Months ($1.20)
+            </button>
+          </div>
+
+          <!-- Plan 4: $4.00 -->
+          <div class="plan-card-item">
+            <span class="plan-tag">1 Year Mega</span>
+            <h3 style="color:#fff; font-size:1.1rem; font-weight:800;">Full 1-Year Mega Pass</h3>
+            <div class="price-row">
+              <span class="current-price">$4.00</span>
+              <span class="old-price-strikethrough">$12.00</span>
+              <span class="discount-pill">(66% OFF)</span>
+            </div>
+            <button class="btn-gold-action" style="width: 100%;" onclick="initiateHormuudCheckout('1 Year Mega Access', 4.00)">
+              <span class="material-symbols-outlined">diamond</span>
+              Get 1-Year Pass ($4.00)
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= PAGE 4: SUPPORT & HELP ================= -->
+      <section id="view-support" class="page-view">
+        <div class="section-head">
+          <h2>Direct Help & Support 📞</h2>
+        </div>
+
+        <div class="profile-section-card">
+          <h3 style="font-size: 1.05rem; font-weight: 800; color: #fff; margin-bottom: 6px;">Nala Soo Xiriir (Inquiry Form)</h3>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 16px;">Geli farriintaada, waxaa toos loogu keydinayaa Firebase, lagulana soo xiriiri doonaa.</p>
+
+          <div class="input-field-wrap">
+            <label class="input-label">Magacaaga (Your Name)</label>
+            <input type="text" id="helpName" class="auth-text-input" placeholder="e.g. Cali Jaamac" />
+          </div>
+
+          <div class="input-field-wrap">
+            <label class="input-label">Hormuud Mobile Number</label>
+            <input type="tel" id="helpPhone" class="auth-text-input" placeholder="61XXXXXXX" />
+          </div>
+
+          <div class="input-field-wrap">
+            <label class="input-label">Farriintaada (Message/Issue)</label>
+            <textarea id="helpMessage" class="auth-text-input" rows="4" placeholder="Qor wixii caawinaad ah oo aad u baahan tahay..."></textarea>
+          </div>
+
+          <button class="btn-gold-action" style="width: 100%;" onclick="submitHelpTicket()">
+            <span class="material-symbols-outlined">send</span>
+            Dir Farriinta (Submit to Firebase)
+          </button>
+        </div>
+
+        <div class="profile-section-card" style="border-color: var(--primary);">
+          <h3 style="font-size: 1rem; color: #fff; margin-bottom: 4px;">Toos u Wac Xarunta FIITIK</h3>
+          <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 12px;">Xafiiska Adeegga Macmiilka 24/7 diyaar:</p>
+          <a href="tel:252612688949" class="btn-gold-action" style="text-decoration:none; background: #10b981; color: #fff;">
+            <span class="material-symbols-outlined">call</span>
+            Wac: +252 612688949
+          </a>
+        </div>
+      </section>
+
+      <!-- ================= PAGE 5: PROFILE VIEW ================= -->
+      <section id="view-profile" class="page-view">
+        <div class="profile-section-card" style="text-align: center;">
+          <div style="width: 70px; height: 70px; border-radius: 50%; background: var(--card-elevated); border: 2px solid var(--gold); display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; padding: 14px;">
+            <svg class="fm-logo-svg" viewBox="0 0 500 500">
+              <path d="M125 125 H275 L250 175 H175 V235 H240 L215 285 H175 V375 H125 Z" fill="#ffffff" />
+              <path d="M245 200 L305 320 L375 125 H425 V375 H375 V235 L320 375 H290 L245 285 Z" fill="#d4af37" />
+            </svg>
+          </div>
+          <h3 id="profName" style="font-size: 1.15rem; color: #fff;">FIITIK User</h3>
+          <p id="profPhone" style="font-size: 0.82rem; color: var(--gold); margin-top: 2px;">+252 61XXXXXXX</p>
+          <div id="profVipBadge" style="margin-top: 10px; display: inline-block; background: rgba(16, 185, 129, 0.15); border: 1px solid var(--primary); color: var(--primary); padding: 4px 12px; border-radius: 20px; font-size: 0.72rem; font-weight: 800;">
+            Firebase Connected (Free Tier)
+          </div>
+        </div>
+
+        <!-- Subscribe Your Number -->
+        <div class="profile-section-card">
+          <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+            <span class="material-symbols-outlined" style="color:var(--gold);">sms</span>
+            <h4 style="font-size:0.95rem; color:#fff; font-weight:800;">Subscribe Your Number</h4>
+          </div>
+          <p style="font-size:0.78rem; color:var(--text-muted); margin-bottom:12px;">Geli number-kaaga si toos loogu keydiyo Firebase oo ogeysiisyada diiniga ah lagula socodsiiyo.</p>
+          
+          <div style="display:flex; gap:8px;">
+            <input type="tel" id="subscribePhoneInput" class="auth-text-input" placeholder="61XXXXXXX" style="flex:1;" />
+            <button class="btn-gold-action" style="padding:10px 16px; font-size:0.85rem;" onclick="saveSubscriberNumber()">
+              <span>Save</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Profile Nav Rows -->
+        <div class="profile-section-card" style="padding: 6px 16px;">
+          <div class="profile-nav-row" onclick="openSubview('helpReportModal')">
+            <div style="display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 0.88rem;">
+              <span class="material-symbols-outlined" style="color: var(--gold);">help_center</span>
+              <span>Help & Report Guidelines (English)</span>
+            </div>
+            <span class="material-symbols-outlined" style="color: var(--text-muted); font-size: 18px;">chevron_right</span>
+          </div>
+
+          <div class="profile-nav-row" onclick="openSubview('aboutAppModal')">
+            <div style="display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 0.88rem;">
+              <span class="material-symbols-outlined" style="color: var(--primary);">info</span>
+              <span>About FIITIK MEDIA (App Info)</span>
+            </div>
+            <span class="material-symbols-outlined" style="color: var(--text-muted); font-size: 18px;">chevron_right</span>
+          </div>
+
+          <div class="profile-nav-row" onclick="relaunchWizard()">
+            <div style="display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 0.88rem;">
+              <span class="material-symbols-outlined" style="color: #60a5fa;">tune</span>
+              <span>Bedel Degaanka & Su'aalaha (15 Steps)</span>
+            </div>
+            <span class="material-symbols-outlined" style="color: var(--text-muted); font-size: 18px;">chevron_right</span>
+          </div>
+        </div>
+
+        <button class="btn-gold-action" style="background: rgba(239, 68, 68, 0.12); color: #f87171; border: 1px solid var(--danger); box-shadow: none; width: 100%;" onclick="handleLogout()">
+          <span class="material-symbols-outlined">logout</span>
+          Ka Bax Akoonka (Sign Out)
+        </button>
+      </section>
+
+    </main>
+
+    <!-- ================= 11. SUBVIEWS ================= -->
+    <div id="helpReportModal" class="subview-modal">
+      <div class="reader-toolbar">
+        <button class="header-icon-btn" onclick="closeSubview('helpReportModal')">
+          <span class="material-symbols-outlined">arrow_back</span>
+        </button>
+        <div style="text-align: center;">
+          <h3 style="font-size: 1rem; font-weight: 900; color: #fff;">Help & Report Center</h3>
+          <span style="font-size: 0.7rem; color: var(--gold);">Official Platform Guidelines</span>
+        </div>
+        <div style="width:38px;"></div>
+      </div>
+
+      <div class="subview-body">
+        <div class="english-report-article">
+          <h4>1. Purpose & Platform Mission</h4>
+          <p>FIITIK MEDIA Islamic Platform provides verified online Quranic recitation across all 114 Surahs, authentic Somali translations, and high-definition Islamic lectures (Duruus).</p>
+        </div>
+
+        <div class="english-report-article">
+          <h4>2. Subscriptions & Payments</h4>
+          <p>Subscriptions via Hormuud EVC Plus USSD protocol (*712*612688949*Amount#) are verified directly by the Administrator to grant full Unlimited VIP privileges.</p>
+        </div>
+
+        <div class="english-report-article">
+          <h4>3. Direct Support Hotline</h4>
+          <p>For immediate technical assistance, please call our 24/7 support line at <strong>+252 612688949</strong>.</p>
+        </div>
+      </div>
+    </div>
+
+    <div id="aboutAppModal" class="subview-modal">
+      <div class="reader-toolbar">
+        <button class="header-icon-btn" onclick="closeSubview('aboutAppModal')">
+          <span class="material-symbols-outlined">arrow_back</span>
+        </button>
+        <div style="text-align: center;">
+          <h3 style="font-size: 1rem; font-weight: 900; color: #fff;">About FIITIK MEDIA</h3>
+          <span style="font-size: 0.7rem; color: var(--gold);">Application Information</span>
+        </div>
+        <div style="width:38px;"></div>
+      </div>
+
+      <div class="subview-body" style="text-align: center;">
+        <div style="width: 110px; height: 110px; margin: 16px auto 14px;">
+          <svg class="fm-logo-svg" viewBox="0 0 500 500">
+            <rect width="500" height="500" rx="40" fill="#000000"/>
+            <path d="M125 125 H275 L250 175 H175 V235 H240 L215 285 H175 V375 H125 Z" fill="#ffffff" />
+            <path d="M275 125 L325 200 L250 200 Z" fill="#ffffff" />
+            <path d="M245 200 L305 320 L375 125 H425 V375 H375 V235 L320 375 H290 L245 285 Z" fill="#d4af37" />
+            <text x="250" y="420" font-family="'Inter', sans-serif" font-weight="900" font-size="34" fill="#ffffff" text-anchor="middle" letter-spacing="8">FIITIK MEDIA</text>
+            <text x="250" y="450" font-family="'Inter', sans-serif" font-weight="700" font-size="13" fill="#d4af37" text-anchor="middle" letter-spacing="5">— CREATE • ELEVATE —</text>
+          </svg>
+        </div>
+
+        <h3 style="font-size: 1.25rem; font-weight: 900; color: #fff; margin-bottom: 2px;">FIITIK MEDIA APP</h3>
+        <p style="font-size: 0.78rem; color: var(--gold); font-weight: 800; letter-spacing: 1px;">CREATE • ELEVATE</p>
+        <p style="font-size: 0.8rem; color: var(--text-muted); margin: 8px 0 16px;">Version 2.4.0 (Build 2026)</p>
+
+        <div class="english-report-article" style="text-align: left;">
+          <h4>Developed For Global Learning</h4>
+          <p>FIITIK MEDIA delivers Quran recitations and HD duruus worldwide with real-time Firebase syncing.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= 12. FULLSCREEN SURAH READER ================= -->
+    <div id="surahReaderView">
+      <div class="reader-toolbar">
+        <button class="header-icon-btn" onclick="closeSurahReader()">
+          <span class="material-symbols-outlined">arrow_back</span>
+        </button>
+        <div style="text-align: center;">
+          <h3 id="surahReaderTitle" style="font-size: 1rem; font-weight: 900; color: #fff;">Surah Name</h3>
+          <span id="surahReaderMeta" style="font-size: 0.7rem; color: var(--gold);">Ayahs & Somali Translation</span>
+        </div>
+        <button class="header-icon-btn" onclick="playSurahAudio()">
+          <span class="material-symbols-outlined" id="audioToolbarIcon" style="color: var(--gold);">volume_up</span>
+        </button>
+      </div>
+
+      <div class="reader-body-scroll" id="ayahsContainer"></div>
+    </div>
+
+    <!-- ================= 13. BOTTOM NAVIGATION ================= -->
+    <nav class="bottom-nav">
+      <button class="nav-tab-btn active" onclick="switchTab('quran', this)">
+        <span class="material-symbols-outlined">auto_stories</span>
+        <span class="nav-label">Quran</span>
+      </button>
+
+      <button class="nav-tab-btn" onclick="switchTab('videos', this)">
+        <span class="material-symbols-outlined">video_library</span>
+        <span class="nav-label">Duruus</span>
+      </button>
+
+      <button class="nav-tab-btn" onclick="switchTab('cart', this)">
+        <span class="material-symbols-outlined">shopping_cart</span>
+        <span class="nav-label">Plans</span>
+      </button>
+
+      <button class="nav-tab-btn" onclick="switchTab('support', this)">
+        <span class="material-symbols-outlined">support_agent</span>
+        <span class="nav-label">Help</span>
+      </button>
+
+      <button class="nav-tab-btn" onclick="switchTab('profile', this)">
+        <span class="material-symbols-outlined">person</span>
+        <span class="nav-label">Profile</span>
+      </button>
+    </nav>
+
+    <!-- TOAST -->
+    <div id="toastNotification" class="toast-box">
+      <span class="material-symbols-outlined" style="color: var(--gold);">info</span>
+      <span id="toastMsg">Notification</span>
+    </div>
+
+  </div>
+
+  <!-- =========================================
+       14. JAVASCRIPT: BULLETPROOF LIVE REALTIME SYNC
+       ========================================= -->
+  <script>
+    /* REAL FIREBASE CONFIGURATION */
+    const firebaseConfig = {
+      apiKey: "AIzaSyAkW3cfGXI-gg-w1wH1DyGZmFCeRxelPv4",
+      authDomain: "saaxip-app.firebaseapp.com",
+      databaseURL: "https://saaxip-app-default-rtdb.firebaseio.com",
+      projectId: "saaxip-app",
+      storageBucket: "saaxip-app.firebasestorage.app",
+      messagingSenderId: "275933662705",
+      appId: "1:275933662705:web:321ccffec06a4bf2658850",
+      measurementId: "G-MVWNNJLJTX"
+    };
+
+    let firebaseDb = null;
+    let currentUserPhone = null;
+    let isUserVip = false;
+    let pendingInterval = null;
+    let allSurahsData = [];
+
+    // Locked Premium Surahs (Al-Fatihah: 1, Al-Baqarah: 2, Al-Ikhlas: 112)
+    const LOCKED_PREMIUM_SURAHS = [1, 2, 112];
+
+    // Phone Normalizer helper
+    function cleanPhoneNumber(rawPhone) {
+      if (!rawPhone) return '';
+      let clean = rawPhone.toString().replace(/\D/g, '');
+      if (clean.startsWith('252') && clean.length > 9) clean = clean.substring(3);
+      if (clean.startsWith('0') && clean.length > 9) clean = clean.substring(1);
+      return clean;
+    }
+
+    // 15 Steps Questionnaire Data
+    const WIZARD_QUESTIONS = [
+      { q: "1. Dooro Gobolkaaga ama Deegaankaaga Soomaaliya:", desc: "Dooro mid ka mid ah 18-ka gobol ee dalka.", opts: ["Banaadir (Muqdisho)", "Bari (Boosaaso)", "Nugaal (Garowe)", "Mudug (Gaalkacyo)", "Galguduud (Dhuusamareeb)", "Hiiraan (Baladweyne)", "Shabeellaha Dhexe (Jowhar)", "Shabeellaha Hoose (Marka)", "Baay (Baydhabo)", "Bakool (Xudur)", "Gedo (Garbaaharey)", "Jubbada Dhexe (Bu'aale)", "Jubbada Hoose (Kismaayo)", "Awdal (Borama)", "Maroodi Jeex (Hargeysa)", "Saaxil (Berbera)", "Togdheer (Burco)", "Sanaag (Ceerigaabo)", "Sool (Laascaanood)"] },
+      { q: "2. Haddii aad qurbaha joogto, dooro waddankaaga:", desc: "Waddanka aad hadda ku nooshahay.", opts: ["Somalia (Gudaha)", "Kenya", "Ethiopia", "Djibouti", "United Kingdom (UK)", "United States (USA)", "Sweden", "Turkey", "United Arab Emirates (UAE)", "Waddan Kale (Other)"] },
+      { q: "3. Waa maxay heerkaaga akhriska Qur'aanka?", desc: "Xulo heerka aqoontaada.", opts: ["Bilow (Waxaan baranayaa Higgaadda)", "Dhexdhexaad (Qur'aanka waan akhriyaa)", "Dhameystir (Qur'aan Xaafid/Tajweed)", "Waxaan rabaa Tafsiirka oo kaliya"] },
+      { q: "4. Qari-ga (Codka) aad ugu jeceshahay dhagaysiga:", desc: "Codadka quraanka ee aad doorbideyso.", opts: ["Mishary Rashid Alafasy", "Abdulbasit Abdusamad", "Mahmoud Khalil Al-Hussary", "Saad Al-Ghamdi", "Abdirashid Ali Sufi"] },
+      { q: "5. Immisa daqiiqo ayaad maalinkii qorshaynaysaa?", desc: "Waqtiga aad u hibeyn karto barashada.", opts: ["10 Daqiiqo maalintii", "20 Daqiiqo maalintii", "45 Daqiiqo maalintii", "1 Saac iyo ka badan"] },
+      { q: "6. Nooca Duruusta aad xiisaynayso:", desc: "Mawduucyada aad ugu jeceshahay.", opts: ["Tafsiirka Qur'aanka", "Fiqh & Caqiido", "Siirada Nabiga (NNKH)", "Tajweedka & Codka", "Dhammaan Duruusta"] },
+      { q: "7. Xawaaraha internet-ka ee aad isticmaasho:", desc: "Si app-ku kuugu habeeyo xogta.", opts: ["4G / 5G Mobile Data", "Wi-Fi Xawaare Sare Leh", "Data Dhexdhexaad ah (Save Mode)"] },
+      { q: "8. Ma doonaysaa Xusuusin (Notifications) Salaadda & Duruusta?", desc: "Ogeysiisyada maalinlaha ah.", opts: ["Haa, mar kasta i xusuusi", "Kaliya casharada cusub", "Maya, ha ii soo dirin"] },
+      { q: "9. Kooxda Da'daada (Age Group):", desc: "Si nuxurka kuugu habboon laguu tuso.", opts: ["Ka yar 18 sano", "18 - 25 sano", "26 - 40 sano", "Ka weyn 40 sano"] },
+      { q: "10. Luuqadda labaad ee aad doorbideyso:", desc: "Fasiraadda iyo luuqadaha app-ka.", opts: ["Af-Soomaali (Default)", "English", "Arabic (Carabi)"] },
+      { q: "11. Ma leedahay akoon Hormuud EVC Plus ah?", desc: "Bixinta xirmooyinka iyo taageerada.", opts: ["Haa, EVC Plus ayaan haystaa", "Telesom Zaad ayaan haystaa", "Golis Sahal ayaan haystaa", "Mastercard / Visa Card"] },
+      { q: "12. Hadafkaaga ugu weyn ee app-kan:", desc: "Maxaad doonaysaa inaad ku gaarto?", opts: ["Inaan Qur'aanka dhammeeyo", "Inaan carruurtayda baro", "Inaan Duruus video ah daawado", "Inaan maalin kasta dhagaysto"] },
+      { q: "13. Nooca Taleefanka aad isticmaalayso:", desc: "Optimisation-ka muuqaalka.", opts: ["Android Smartphone", "iPhone (iOS)", "Tablet / iPad", "Computer / Web"] },
+      { q: "14. Habka aad jeceshahay inaad wax u barato:", desc: "Qaabka waxbarashada.", opts: ["Akhris iyo Qoraal toos ah", "Dhageysi Cod (Audio)", "Daawo Fiidyow (Video Duruus)"] },
+      { q: "15. Ma xaqiijinaysaa dhammaan doorashooyinkaaga?", desc: "FIITIK Media waxay kuu habaynaysaa akoonkaaga.", opts: ["Haa, dhammaystir diiwaangelinta (Finish)"] }
+    ];
+
+    let currentWizardStep = 0;
+    let wizardAnswers = {};
+    let onboardIdx = 0;
+    let currentAuthMode = 'login';
+
+    /* INITIALIZATION */
+    window.addEventListener('DOMContentLoaded', () => {
+      initFirebaseClient();
+      runStartupAnimation();
+      fetch114Surahs();
+      checkAuthAndOnboarding();
+      checkPendingTimer();
+    });
+
+    function initFirebaseClient() {
+      try {
+        if (typeof firebase !== 'undefined') {
+          firebase.initializeApp(firebaseConfig);
+          firebaseDb = firebase.database();
+          console.log("FIITIK User App: Firebase Connected!");
+          listenToLiveAdminVideos();
+
+          // If user already authenticated, bind listener immediately
+          const savedUser = localStorage.getItem('fiitik_user');
+          if (savedUser) {
+            const uObj = JSON.parse(savedUser);
+            attachLiveAdminCommandsListener(uObj.phone);
+          }
+        }
+      } catch(e) {
+        console.warn("Firebase Init:", e);
+      }
+    }
+
+    /* =======================================================
+       BULLETPROOF DUAL REALTIME SYNC (ADMIN VIP & BAN COMMANDS)
+       ======================================================= */
+    function attachLiveAdminCommandsListener(phone) {
+      if (!phone) return;
+      const cleanPhone = cleanPhoneNumber(phone);
+      currentUserPhone = cleanPhone;
+
+      if (!firebaseDb) {
+        setTimeout(() => attachLiveAdminCommandsListener(phone), 500);
+        return;
+      }
+
+      updateUserLastSeen(cleanPhone);
+
+      // Handler function for user state changes
+      function handleUserState(userData) {
+        if (!userData) return;
+
+        // 1. REALTIME BAN COMMAND
+        if (userData.banned === true) {
+          document.getElementById('bannedOverlayScreen').classList.add('active');
+        } else {
+          document.getElementById('bannedOverlayScreen').classList.remove('active');
+        }
+
+        // 2. REALTIME VIP / APPROVAL COMMAND
+        if (userData.vip === true || userData.subscriptionStatus === 'active') {
+          if (!isUserVip) {
+            document.getElementById('vipSuccessModal').classList.add('active');
+          }
+          isUserVip = true;
+
+          // Clear Pending Timer
+          localStorage.removeItem('fiitik_pending_timer');
+          document.getElementById('pendingBanner').classList.remove('active');
+          if (pendingInterval) clearInterval(pendingInterval);
+
+          // CART: Hide Buyable Plans & Show Active VIP Banner
+          document.getElementById('cartVipActiveView').style.display = 'block';
+          document.getElementById('cartBuyablePlansSection').style.display = 'none';
+
+          // Badges
+          document.getElementById('userStatusHeaderBadge').textContent = "⭐ VIP Active (Unlimited)";
+          document.getElementById('userStatusHeaderBadge').style.color = "var(--primary)";
+          document.getElementById('profVipBadge').innerHTML = "⭐ VIP Access (Unlimited Approved)";
+          document.getElementById('profVipBadge').style.borderColor = "var(--gold)";
+          document.getElementById('profVipBadge').style.color = "var(--gold)";
+        } else {
+          // EXPIRED / REVOKED VIP
+          isUserVip = false;
+          document.getElementById('cartVipActiveView').style.display = 'none';
+          document.getElementById('cartBuyablePlansSection').style.display = 'block';
+
+          document.getElementById('userStatusHeaderBadge').textContent = "Quran, Duruus & Media";
+          document.getElementById('userStatusHeaderBadge').style.color = "var(--gold)";
+          document.getElementById('profVipBadge').innerHTML = "Firebase Connected (Free Tier)";
+          document.getElementById('profVipBadge').style.borderColor = "var(--primary)";
+          document.getElementById('profVipBadge').style.color = "var(--primary)";
+        }
+
+        // Re-render Surah list
+        renderSurahsList(allSurahsData);
+      }
+
+      // Bind listener to multiple path variations (61... and 25261...)
+      firebaseDb.ref('users/' + cleanPhone).on('value', snap => handleUserState(snap.val()));
+      firebaseDb.ref('users/252' + cleanPhone).on('value', snap => handleUserState(snap.val()));
+
+      // Also listen to payments_pending in case admin approves directly there
+      firebaseDb.ref('payments_pending/' + cleanPhone).on('value', snap => {
+        const pData = snap.val();
+        if (pData && pData.status === 'approved') {
+          handleUserState({ vip: true, subscriptionStatus: 'active' });
+        }
+      });
+      firebaseDb.ref('payments_pending/252' + cleanPhone).on('value', snap => {
+        const pData = snap.val();
+        if (pData && pData.status === 'approved') {
+          handleUserState({ vip: true, subscriptionStatus: 'active' });
+        }
+      });
+    }
+
+    function updateUserLastSeen(phone) {
+      if (!firebaseDb || !phone) return;
+      const cleanPhone = cleanPhoneNumber(phone);
+      const nowStr = new Date().toLocaleString();
+      try {
+        firebaseDb.ref('users/' + cleanPhone).update({
+          lastActive: nowStr,
+          lastActiveTimestamp: firebase.database.ServerValue.TIMESTAMP
+        });
+      } catch(e) {}
+    }
+
+    function closeVipModal() {
+      document.getElementById('vipSuccessModal').classList.remove('active');
+      showToast("Dhammaan Duruusta & Qur'aanka waa kuu furan yihiin! 📖✨");
+    }
+
+    /* =======================================================
+       RELATIVE TIME-AGO ENGINE
+       ======================================================= */
+    function formatTimeAgo(timestamp) {
+      if (!timestamp) return 'Dhawaan';
+      const now = Date.now();
+      const past = typeof timestamp === 'number' ? timestamp : new Date(timestamp).getTime();
+      const diffSec = Math.floor((now - past) / 1000);
+
+      if (isNaN(diffSec) || diffSec < 60) return 'Hadda (Just now)';
+      const diffMin = Math.floor(diffSec / 60);
+      if (diffMin < 60) return `${diffMin}m ago (${diffMin} daqiiqo ka hor)`;
+      const diffHours = Math.floor(diffMin / 60);
+      if (diffHours < 24) return `${diffHours}h ago (${diffHours} saac ka hor)`;
+      const diffDays = Math.floor(diffHours / 24);
+      if (diffDays === 1) return '1 day ago (Shalay)';
+      if (diffDays < 7) return `${diffDays} days ago (${diffDays} maalmood ka hor)`;
+      const diffWeeks = Math.floor(diffDays / 7);
+      if (diffWeeks < 4) return `${diffWeeks}w ago (${diffWeeks} toddobaad ka hor)`;
+      const diffMonths = Math.floor(diffDays / 30);
+      if (diffMonths < 12) return `${diffMonths}mo ago (${diffMonths} bilood ka hor)`;
+      const diffYears = Math.floor(diffDays / 365);
+      return `${diffYears}y ago (${diffYears} sano ka hor)`;
+    }
+
+    /* =======================================================
+       SMART VIDEO ENGINE
+       ======================================================= */
+    function extractYouTubeID(url) {
+      if (!url) return null;
+      const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|shorts\/)([^#&?]*).*/;
+      const match = url.match(regExp);
+      return (match && match[2].length === 11) ? match[2] : null;
+    }
+
+    function renderSmartVideoHTML(v) {
+      const url = (v.url || '').trim();
+      const timestamp = v.timestamp || (v.uploadedAt ? new Date(v.uploadedAt).getTime() : Date.now());
+      const timeAgoText = formatTimeAgo(timestamp);
+      const isNew = (Date.now() - timestamp) < (48 * 60 * 60 * 1000);
+      const youtubeId = extractYouTubeID(url);
+
+      let playerMarkup = '';
+
+      if (youtubeId) {
+        playerMarkup = `
+          <iframe 
+            src="https://www.youtube-nocookie.com/embed/${youtubeId}?rel=0&playsinline=1&modestbranding=1" 
+            title="${v.title || 'Duruus Video'}" 
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+            allowfullscreen>
+          </iframe>
+        `;
+      } else if (url.startsWith('data:video') || url.endsWith('.mp4') || url.endsWith('.webm') || v.type === 'direct') {
+        playerMarkup = `
+          <video controls playsinline preload="metadata" src="${url}"></video>
+        `;
+      } else {
+        playerMarkup = `
+          <iframe src="${url}" allowfullscreen allow="autoplay; fullscreen"></iframe>
+        `;
+      }
+
+      return `
+        <div class="video-card-item">
+          <div class="video-frame-wrap">
+            ${playerMarkup}
+          </div>
+          <div class="video-info-box">
+            <div class="video-badge-row">
+              ${isNew ? '<span class="video-new-badge">CUSUB 🔥</span>' : ''}
+              <span class="video-time-ago">
+                <span class="material-symbols-outlined" style="font-size:14px;">schedule</span>
+                ${timeAgoText}
+              </span>
+            </div>
+            <h3 class="video-title">${v.title || 'Cashar Diini ah'}</h3>
+            <div class="video-sub-row">
+              <span class="video-author">FIITIK Media Islamic Hub</span>
+              ${youtubeId ? `
+                <a href="https://www.youtube.com/watch?v=${youtubeId}" target="_blank" class="btn-watch-external">
+                  <span class="material-symbols-outlined" style="font-size:15px;">play_arrow</span>
+                  Daawo Live
+                </a>
+              ` : ''}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function listenToLiveAdminVideos() {
+      if (!firebaseDb) return;
+      const container = document.getElementById('userVideoListContainer');
+
+      firebaseDb.ref('admin_videos').on('value', (snapshot) => {
+        const videosData = snapshot.val();
+        if (videosData && Object.keys(videosData).length > 0) {
+          const vList = Object.values(videosData).reverse();
+          document.getElementById('liveVideosBadge').textContent = `${vList.length} Live`;
+          container.innerHTML = vList.map(v => renderSmartVideoHTML(v)).join('');
+        } else {
+          document.getElementById('liveVideosBadge').textContent = `0 Live`;
+          container.innerHTML = `
+            <div class="video-empty-notice">
+              <span class="material-symbols-outlined">smart_display</span>
+              <h3 style="font-size: 1.05rem; font-weight: 800; color: #fff; margin-bottom: 6px;">Wax video ah ilaa hadda Administrator sooma gelin</h3>
+              <p style="font-size: 0.8rem; color: var(--text-muted);">Duruusta cusub iyo casharada fiidyowga ah marka uu Admin-ku soo geliyo, toos ayay halkan kaaga soo muuqan doonaan.</p>
+            </div>
+          `;
+        }
+      });
+    }
+
+    /* =========================================
+       STARTUP SPLASH
+       ========================================= */
+    function runStartupAnimation() {
+      const fill = document.getElementById('splashFill');
+      const splash = document.getElementById('startupSplash');
+
+      let prog = 0;
+      const interval = setInterval(() => {
+        prog += 30;
+        if (prog >= 100) {
+          prog = 100;
+          clearInterval(interval);
+          fill.style.width = '100%';
+          setTimeout(() => { splash.classList.add('fade-out'); }, 250);
+        } else {
+          fill.style.width = `${prog}%`;
+        }
+      }, 60);
+
+      setTimeout(() => { splash.classList.add('fade-out'); }, 1400);
+    }
+
+    /* =========================================
+       ONBOARDING & 15-STEP WIZARD
+       ========================================= */
+    function checkAuthAndOnboarding() {
+      const onboarded = localStorage.getItem('fiitik_onboarded');
+      const user = localStorage.getItem('fiitik_user');
+
+      if (!onboarded) {
+        document.getElementById('onboardingModal').classList.remove('hidden');
+      } else if (!user) {
+        document.getElementById('authModal').classList.add('active');
+      } else {
+        const uObj = JSON.parse(user);
+        updateProfileDisplay(uObj);
+        attachLiveAdminCommandsListener(uObj.phone);
+      }
+    }
+
+    function nextOnboardStep() {
+      onboardIdx++;
+      if (onboardIdx >= 3) {
+        document.getElementById('onboardingModal').classList.add('hidden');
+        localStorage.setItem('fiitik_onboarded', 'true');
+        start15StepWizard();
+      } else {
+        updateOnboardSlide();
+      }
+    }
+
+    function skipOnboarding() {
+      document.getElementById('onboardingModal').classList.add('hidden');
+      localStorage.setItem('fiitik_onboarded', 'true');
+      start15StepWizard();
+    }
+
+    function updateOnboardSlide() {
+      const titles = [
+        "114 Surahs Quran & HD Duruus",
+        "Somali Translations & Fast Audio",
+        "Personalized Learning & VIP Access"
+      ];
+      const descs = [
+        "Qur'aanka Kariimka ah oo wata Aayado Carabi ah, Tarjumaad Af-Soomaali ah, iyo Duruus Diini ah.",
+        "Dhagayso quraanka xawaare sare leh adigoo baranaya macnaha aayad kasta.",
+        "Qorshe gaar ah oo ku habboon deegaankaaga iyo waqtigaaga maalinlaha ah."
+      ];
+
+      document.getElementById('onboardTitle').textContent = titles[onboardIdx];
+      document.getElementById('onboardDesc').textContent = descs[onboardIdx];
+
+      document.querySelectorAll('.onboard-dot').forEach((d, i) => {
+        d.classList.toggle('active', i === onboardIdx);
+      });
+    }
+
+    function start15StepWizard() {
+      currentWizardStep = 0;
+      document.getElementById('questionnaireModal').classList.add('open');
+      renderWizardStep();
+    }
+
+    function relaunchWizard() {
+      start15StepWizard();
+    }
+
+    function renderWizardStep() {
+      const qData = WIZARD_QUESTIONS[currentWizardStep];
+      document.getElementById('wizardStepLabel').textContent = `Step ${currentWizardStep + 1} of 15`;
+      document.getElementById('wizardProgressFill').style.width = `${((currentWizardStep + 1) / 15) * 100}%`;
+
+      document.getElementById('wizardQTitle').textContent = qData.q;
+      document.getElementById('wizardQDesc').textContent = qData.desc;
+
+      const optsContainer = document.getElementById('wizardOptionsList');
+      optsContainer.innerHTML = qData.opts.map(opt => `
+        <button class="wizard-opt-btn" onclick="selectWizardAnswer('${opt.replace(/'/g, "\\'")}')">
+          <span>${opt}</span>
+          <span class="material-symbols-outlined" style="font-size: 18px; color: var(--gold);">arrow_forward_ios</span>
+        </button>
+      `).join('');
+    }
+
+    function selectWizardAnswer(answer) {
+      wizardAnswers[`step_${currentWizardStep + 1}`] = answer;
+      currentWizardStep++;
+
+      if (currentWizardStep < 15) {
+        renderWizardStep();
+      } else {
+        document.getElementById('questionnaireModal').classList.remove('open');
+        localStorage.setItem('fiitik_wizard_data', JSON.stringify(wizardAnswers));
+        showToast("Xogta deegaankaaga si guul leh ayaa loo habeeyay! ✨");
+
+        const user = localStorage.getItem('fiitik_user');
+        if (!user) {
+          document.getElementById('authModal').classList.add('active');
+        }
+      }
+    }
+
+    /* =========================================
+       AUTH LOGIC
+       ========================================= */
+    function switchAuthMode(mode) {
+      currentAuthMode = mode;
+      document.getElementById('tabBtnLogin').classList.toggle('active', mode === 'login');
+      document.getElementById('tabBtnSignup').classList.toggle('active', mode === 'signup');
+      document.getElementById('wrapFullName').style.display = mode === 'signup' ? 'block' : 'none';
+      document.getElementById('authSubmitText').textContent = mode === 'login' ? 'Sign In to FIITIK' : 'Create FIITIK Account';
+      document.getElementById('authErrorBox').style.display = 'none';
+    }
+
+    function togglePasswordVisibility(inputId, btn) {
+      const input = document.getElementById(inputId);
+      const icon = btn.querySelector('.material-symbols-outlined');
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.textContent = 'visibility_off';
+      } else {
+        input.type = 'password';
+        icon.textContent = 'visibility';
+      }
+    }
+
+    function processAuthSubmission() {
+      const phone = document.getElementById('authPhoneInput').value.trim();
+      const pass = document.getElementById('authPasswordInput').value.trim();
+      const name = document.getElementById('authFullName').value.trim();
+      const errBox = document.getElementById('authErrorBox');
+      const errMsg = document.getElementById('authErrorMsg');
+
+      errBox.style.display = 'none';
+
+      if (!phone || phone.length < 7) {
+        errBox.style.display = 'flex';
+        errMsg.textContent = "Fadlan geli number Hormuud oo sax ah (e.g. 61XXXXXXX)";
+        return;
+      }
+      if (!pass || pass.length < 4) {
+        errBox.style.display = 'flex';
+        errMsg.textContent = "Furaha sirta ah (Password) waa inuu ka badnaadaa 4 xaraf.";
+        return;
+      }
+      if (currentAuthMode === 'signup' && !name) {
+        errBox.style.display = 'flex';
+        errMsg.textContent = "Fadlan geli magacaaga oo buuxa.";
+        return;
+      }
+
+      const cleanPhone = cleanPhoneNumber(phone);
+      const userData = {
+        name: name || "FIITIK Member",
+        phone: cleanPhone,
+        date: new Date().toLocaleDateString(),
+        lastActive: new Date().toLocaleString(),
+        banned: false,
+        vip: false
+      };
+
+      localStorage.setItem('fiitik_user', JSON.stringify(userData));
+
+      if (firebaseDb) {
+        try {
+          firebaseDb.ref('users/' + cleanPhone).update(userData);
+        } catch(e) {}
+      }
+
+      document.getElementById('authModal').classList.remove('active');
+      updateProfileDisplay(userData);
+      attachLiveAdminCommandsListener(cleanPhone);
+      showToast(`Ku soo dhawaw FIITIK MEDIA, ${userData.name}! ✨`);
+    }
+
+    function updateProfileDisplay(user) {
+      if (!user) return;
+      document.getElementById('profName').textContent = user.name || "FIITIK User";
+      document.getElementById('profPhone').textContent = `+252 ${cleanPhoneNumber(user.phone)}`;
+    }
+
+    function handleLogout() {
+      if (confirm("Ma hubtaa inaad rabto inaad ka baxdo akoonkaaga?")) {
+        localStorage.removeItem('fiitik_user');
+        location.reload();
+      }
+    }
+
+    /* =========================================
+       114 SURAHS & PREMIUM LOCKS
+       ========================================= */
+    async function fetch114Surahs() {
+      try {
+        const res = await fetch("https://api.alquran.cloud/v1/surah");
+        const data = await res.json();
+        if (data && data.code === 200) {
+          allSurahsData = data.data;
+          renderSurahsList(allSurahsData);
+        } else {
+          throw new Error("Offline");
+        }
+      } catch(e) {
+        generateFallback114();
+      }
+    }
+
+    function generateFallback114() {
+      const fallback = [];
+      const commonNames = ["Al-Fatihah", "Al-Baqarah", "Ali 'Imran", "An-Nisa", "Al-Ma'idah", "Al-An'am", "Al-A'raf", "Al-Anfal", "At-Tawbah", "Yunus", "Hud", "Yusuf", "Ar-Ra'd", "Ibrahim", "Al-Hijr", "An-Nahl", "Al-Isra", "Al-Kahf", "Maryam", "Ta-Ha", "Al-Anbiya", "Al-Hajj", "Al-Mu'minun", "An-Nur", "Al-Furqan", "Ash-Shu'ara", "An-Naml", "Al-Qasas", "Al-Ankabut", "Ar-Rum", "Luqman", "As-Sajdah", "Al-Ahzab", "Saba", "Fatir", "Ya-Sin", "As-Saffat", "Sad", "Az-Zumar", "Ghafir", "Fussilat", "Ash-Shura", "Az-Zukhruf", "Ad-Dukhan", "Al-Jathiyah", "Al-Ahqaf", "Muhammad", "Al-Fath", "Al-Hujurat", "Qaf", "Adh-Dhariyat", "At-Tur", "An-Najm", "Al-Qamar", "Ar-Rahman", "Al-Waqi'ah", "Al-Hadid", "Al-Mujadila", "Al-Hashr", "Al-Mumtahanah", "As-Saff", "Al-Jumu'ah", "Al-Munafiqun", "At-Taghabun", "At-Talaq", "At-Tahrim", "Al-Mulk", "Al-Qalam", "Al-Haqqah", "Al-Ma'arij", "Nuh", "Al-Jinn", "Al-Muzzammil", "Al-Muddaththir", "Al-Qiyamah", "Al-Insan", "Al-Mursalat", "An-Naba", "An-Nazi'at", "'Abasa", "At-Takwir", "Al-Infitar", "Al-Mutaffifin", "Al-Inshiqaq", "Al-Buruj", "At-Tariq", "Al-A'la", "Al-Ghashiyah", "Al-Fajr", "Al-Balad", "Ash-Shams", "Al-Layl", "Ad-Duha", "Ash-Sharh", "At-Tin", "Al-'Alaq", "Al-Qadr", "Al-Bayyinah", "Az-Zalzalah", "Al-'Adiyat", "Al-Qari'ah", "At-Takathur", "Al-'Asr", "Al-Humazah", "Al-Fil", "Quraysh", "Al-Ma'un", "Al-Kawthar", "Al-Kafirun", "An-Nasr", "Al-Masad", "Al-Ikhlas", "Al-Falaq", "An-Nas"];
+      for (let i = 1; i <= 114; i++) {
+        fallback.push({
+          number: i,
+          name: `سورة ${i}`,
+          englishName: commonNames[i - 1] || `Surah ${i}`,
+          englishNameTranslation: "The Revelation",
+          numberOfAyahs: 7 + (i % 25),
+          revelationType: i % 2 === 0 ? "Medinan" : "Meccan"
+        });
+      }
+      allSurahsData = fallback;
+      renderSurahsList(allSurahsData);
+    }
+
+    function renderSurahsList(list) {
+      const container = document.getElementById('surahListContainer');
+      if (!list || list.length === 0) return;
+
+      container.innerHTML = list.map(s => {
+        const isLockedSurah = LOCKED_PREMIUM_SURAHS.includes(s.number) && !isUserVip;
+
+        return `
+          <div class="surah-row-card ${isLockedSurah ? 'premium-locked-card' : ''}" onclick="handleSurahClick(${s.number}, '${s.englishName.replace(/'/g, "\\'")}', '${s.name}')">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div class="surah-num-box ${isLockedSurah ? 'locked' : ''}">
+                ${isLockedSurah ? '<span class="material-symbols-outlined" style="font-size:18px;">lock</span>' : s.number}
+              </div>
+              <div>
+                <h3 style="font-size: 0.95rem; font-weight: 800; color: #fff;">
+                  ${s.englishName}
+                  ${isLockedSurah ? '<span class="material-symbols-outlined lock-badge-icon">lock</span>' : ''}
+                </h3>
+                <p style="font-size: 0.72rem; color: var(--text-muted); margin-top: 2px;">
+                  ${s.numberOfAyahs} Ayahs • ${s.revelationType} • <span style="color: ${isLockedSurah ? 'var(--danger)' : 'var(--gold)'};">${isLockedSurah ? 'Premium VIP' : s.englishNameTranslation}</span>
+                </p>
+              </div>
+            </div>
+            <div class="surah-ar-name arabic-font">${s.name}</div>
+          </div>
+        `;
+      }).join('');
+
+      document.getElementById('surahCounterBadge').textContent = `${list.length} Surahs`;
+    }
+
+    function handleSurahClick(surahNumber, engName, arName) {
+      const isLocked = LOCKED_PREMIUM_SURAHS.includes(surahNumber) && !isUserVip;
+      if (isLocked) {
+        document.getElementById('premiumPaywallModal').classList.add('active');
+        return;
+      }
+      openSurahDetails(surahNumber, engName, arName);
+    }
+
+    function closePaywallModal() {
+      document.getElementById('premiumPaywallModal').classList.remove('active');
+    }
+
+    function redirectToCartForPlan() {
+      closePaywallModal();
+      switchTab('cart');
+    }
+
+    document.getElementById('surahSearchInput').addEventListener('input', (e) => {
+      const q = e.target.value.toLowerCase().trim();
+      const filtered = allSurahsData.filter(s => 
+        s.englishName.toLowerCase().includes(q) || 
+        s.name.includes(q) ||
+        s.number.toString() === q
+      );
+      renderSurahsList(filtered);
+    });
+
+    async function openSurahDetails(surahNumber, engName, arName) {
+      document.getElementById('surahReaderTitle').textContent = `${surahNumber}. ${engName} (${arName})`;
+      document.getElementById('surahReaderView').classList.add('open');
+      const container = document.getElementById('ayahsContainer');
+
+      if (currentUserPhone) updateUserLastSeen(currentUserPhone);
+
+      container.innerHTML = `<div style="text-align:center; padding:40px; color:var(--gold);">Soo dejinaya Aayadaha & Tarjumaadda...</div>`;
+
+      try {
+        const res = await fetch(`https://api.alquran.cloud/v1/surah/${surahNumber}/editions/quran-uthmani,so.abduh`);
+        const data = await res.json();
+
+        if (data && data.data && data.data.length >= 2) {
+          const arAyahs = data.data[0].ayahs;
+          const soAyahs = data.data[1].ayahs;
+
+          let html = `<div style="text-align:center; font-size:1.8rem; color:var(--gold); margin:14px 0 20px;" class="arabic-font">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>`;
+          html += arAyahs.map((ayah, i) => `
+            <div class="ayah-item-card">
+              <div class="ayah-arabic-text arabic-font">${ayah.text} ﴿${ayah.numberInSurah}﴾</div>
+              <div class="ayah-somali-text"><strong>${ayah.numberInSurah}.</strong> ${soAyahs[i] ? soAyahs[i].text : ''}</div>
+            </div>
+          `).join('');
+
+          container.innerHTML = html;
+        }
+      } catch(e) {
+        container.innerHTML = `
+          <div style="text-align:center; font-size:1.8rem; color:var(--gold); margin:14px 0 20px;" class="arabic-font">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+          <div class="ayah-item-card">
+            <div class="ayah-arabic-text arabic-font">الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ ﴿١﴾</div>
+            <div class="ayah-somali-text"><strong>1.</strong> Mahad Eebbaa iska leh, Rabbiga Caalamka ah.</div>
+          </div>
+        `;
+      }
+    }
+
+    function closeSurahReader() {
+      document.getElementById('surahReaderView').classList.remove('open');
+    }
+
+    function playSurahAudio() {
+      if (!isUserVip) {
+        document.getElementById('premiumPaywallModal').classList.add('active');
+        return;
+      }
+      showToast("Codka Sheikh Mishary Rashid waa shidanyahay 🎧");
+    }
+
+    /* =========================================
+       HORMUUD PAYMENT & 1-HOUR PERSISTENT TIMER
+       ========================================= */
+    function initiateHormuudCheckout(planName, amount) {
+      const user = localStorage.getItem('fiitik_user');
+      let phone = "612688949";
+      if (user) {
+        phone = JSON.parse(user).phone || phone;
+      }
+      const cleanPhone = cleanPhoneNumber(phone);
+
+      const ussdCode = `*712*612688949*${amount}#`;
+      const encodedUssd = `tel:${encodeURIComponent(ussdCode)}`;
+
+      const expiry = new Date().getTime() + (60 * 60 * 1000);
+      localStorage.setItem('fiitik_pending_timer', expiry.toString());
+      checkPendingTimer();
+
+      if (firebaseDb) {
+        try {
+          firebaseDb.ref('payments_pending/' + cleanPhone).set({
+            plan: planName,
+            amount: amount,
+            phone: cleanPhone,
+            timestamp: new Date().toISOString(),
+            status: "pending_verification"
+          });
+        } catch(e) {}
+      }
+
+      showToast(`Garaacaya: ${ussdCode} ...`);
+      setTimeout(() => {
+        window.location.href = encodedUssd;
+      }, 450);
+    }
+
+    function checkPendingTimer() {
+      const exp = localStorage.getItem('fiitik_pending_timer');
+      const banner = document.getElementById('pendingBanner');
+      const display = document.getElementById('pendingClockDisplay');
+
+      if (!exp || isUserVip) {
+        banner.classList.remove('active');
+        if (pendingInterval) clearInterval(pendingInterval);
+        return;
+      }
+
+      const expiryTime = parseInt(exp, 10);
+      banner.classList.add('active');
+
+      if (pendingInterval) clearInterval(pendingInterval);
+
+      pendingInterval = setInterval(() => {
+        const now = new Date().getTime();
+        const diff = expiryTime - now;
+
+        if (diff <= 0 || isUserVip) {
+          clearInterval(pendingInterval);
+          localStorage.removeItem('fiitik_pending_timer');
+          banner.classList.remove('active');
+        } else {
+          const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+          const s = Math.floor((diff % (1000 * 60)) / 1000);
+          display.textContent = `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+        }
+      }, 1000);
+    }
+
+    /* =========================================
+       SUPPORT & SUBSCRIBER
+       ========================================= */
+    function saveSubscriberNumber() {
+      const input = document.getElementById('subscribePhoneInput');
+      const num = input.value.trim();
+
+      if (!num || num.length < 7) {
+        showToast("Fadlan geli number Hormuud oo sax ah!");
+        return;
+      }
+
+      const cleanNum = cleanPhoneNumber(num);
+
+      if (firebaseDb) {
+        try {
+          firebaseDb.ref('subscribers/' + cleanNum).set({
+            phone: cleanNum,
+            subscribedAt: new Date().toISOString()
+          });
+        } catch(e) {}
+      }
+
+      input.value = '';
+      showToast(`Number-kaaga (${cleanNum}) si toos ah ayaa loogu keydiyay Firebase! 📲`);
+    }
+
+    function submitHelpTicket() {
+      const name = document.getElementById('helpName').value.trim();
+      const phone = document.getElementById('helpPhone').value.trim();
+      const msg = document.getElementById('helpMessage').value.trim();
+
+      if (!phone || !msg) {
+        showToast("Fadlan geli number-kaaga iyo farriintaada!");
+        return;
+      }
+
+      const cleanPhone = cleanPhoneNumber(phone);
+
+      if (firebaseDb) {
+        try {
+          firebaseDb.ref('help_tickets').push({
+            name: name || "Anonymous",
+            phone: cleanPhone,
+            message: msg,
+            date: new Date().toISOString()
+          });
+        } catch(e) {}
+      }
+
+      document.getElementById('helpMessage').value = '';
+      showToast("Farriintaada Admin-ka ayaa loo diray, waana lagula soo xiriiri doonaa!");
+    }
+
+    /* SUBVIEWS */
+    function openSubview(modalId) { document.getElementById(modalId).classList.add('open'); }
+    function closeSubview(modalId) { document.getElementById(modalId).classList.remove('open'); }
+
+    /* TAB SWITCHER */
+    function switchTab(tabId, btnElem) {
+      if (currentUserPhone) updateUserLastSeen(currentUserPhone);
+
+      document.querySelectorAll('.page-view').forEach(v => v.classList.remove('active'));
+      const target = document.getElementById(`view-${tabId}`);
+      if (target) target.classList.add('active');
+
+      document.querySelectorAll('.nav-tab-btn').forEach(b => b.classList.remove('active'));
+      if (btnElem) {
+        btnElem.classList.add('active');
+      } else {
+        const match = Array.from(document.querySelectorAll('.nav-tab-btn')).find(b => 
+          b.querySelector('.nav-label').textContent.toLowerCase().includes(tabId.toLowerCase())
+        );
+        if (match) match.classList.add('active');
+      }
+
+      document.querySelector('.content-area').scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    /* TOAST */
+    let tTime;
+    function showToast(msg) {
+      const toast = document.getElementById('toastNotification');
+      document.getElementById('toastMsg').textContent = msg;
+      toast.classList.add('show');
+      clearTimeout(tTime);
+      tTime = setTimeout(() => toast.classList.remove('show'), 2600);
+    }
+  </script>
+</body>
+</html>
